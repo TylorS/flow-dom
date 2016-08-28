@@ -1,5 +1,5 @@
 /* @flow */
-import { map, reduce } from '@most/prelude'
+import { map, reduce } from '../util'
 import { VNode } from './VNode'
 
 const assign = (x: Object, y: Object): Object => Object.assign({}, x, y)

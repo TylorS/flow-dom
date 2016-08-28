@@ -1,4 +1,4 @@
-import { reduce } from '@most/prelude'
+import { reduce } from '../util'
 import { VNode } from '../hyperscript/VNode'
 
 export function update (oldVNode: VNode, vNode: VNode): VNode {
