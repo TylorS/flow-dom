@@ -2,6 +2,7 @@
   "name": "flow-dom",
   "version": "0.1.0",
   "description": "An Immutable Virtual DOM",
+  "main": "lib/index.js",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/TylorS/stream-flow.git"
