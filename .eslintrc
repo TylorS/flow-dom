@@ -1,0 +1,60 @@
+{
+  "extends": "standard",
+  "parser": "babel-eslint",
+  "plugins": [
+    "flowtype",
+    "import",
+    "immutable"
+  ],
+  "rules": {
+    "import/default": 2,
+    "import/export": 2,
+    "import/extensions": [2, {
+      "js": "never",
+      "json": "always"
+    }],
+    "import/imports-first": 2,
+    "import/no-amd": 2,
+    "import/no-deprecated": 1,
+    "import/no-duplicates": 2,
+    "import/no-extraneous-dependencies": [2, {"devDependencies": false, "optionalDependencies": false, "peerDependencies": false}],
+    "import/no-mutable-exports": 2,
+    "import/no-named-as-default-member": 2,
+    "import/no-named-as-default": 2,
+    "import/no-unresolved": 2,
+    "flowtype/define-flow-type": 1,
+    "flowtype/require-parameter-type": [1, { excludeArrowFunctions: true }],
+    "flowtype/require-return-type": [
+      1,
+      "always",
+      {
+        "annotateUndefined": "never"
+      }
+    ],
+    "flowtype/space-after-type-colon": [
+      2,
+      "always"
+    ],
+    "flowtype/space-before-type-colon": [
+      2,
+      "never"
+    ],
+    "flowtype/use-flow-type": 1,
+    "flowtype/valid-syntax": 2,
+    "immutable/no-let": 2,
+  },
+  "settings": {
+    "flowtype": {
+      "onlyFilesWithFlowAnnotation": true
+    },
+    "import/resolver": {
+      "babel-module": {
+
+      }
+    },
+    "import/ignore": [
+      'node_modules',
+      '.(scss|sass|css)$'
+    ]
+  }
+}

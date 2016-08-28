@@ -1,0 +1,29 @@
+{
+  "name": "vdom-benchmark-flow-dom",
+  "version": "1.0.0",
+  "description": "Virtual DOM Benchmark: Flow-DOM",
+  "main": "index.js",
+  "scripts": {
+    "build": "rollup -c",
+    "serve": "pushstate-server dist/ 3000 /index.html",
+    "start": "npm run build && npm run serve",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Tylor Steinberger <tlsteinberger167@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "@most/prelude": "^1.4.0",
+    "vdom-benchmark-base": "^0.2.4"
+  },
+  "devDependencies": {
+    "babel-plugin-module-resolver": "^2.2.0",
+    "babel-plugin-transform-flow-strip-types": "^6.14.0",
+    "babel-plugin-transform-object-rest-spread": "^6.8.0",
+    "pushstate-server": "^1.11.0",
+    "rollup": "^0.34.10",
+    "rollup-plugin-babel": "^2.6.1",
+    "rollup-plugin-buble": "^0.13.0",
+    "rollup-plugin-commonjs": "^3.3.1",
+    "rollup-plugin-node-resolve": "^2.0.0"
+  }
+}
