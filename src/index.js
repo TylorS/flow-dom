@@ -3,6 +3,8 @@ import type { Module } from './interfaces'
 import { VNode } from './hyperscript/VNode'
 import { isUndef, emptyVNodeAt, sameVNode, forEach, reduce, map, replace } from './util'
 
+export { h } from './hyperscript/h'
+
 const emptyVNode = new VNode('', '', [], {}, [], '', null, null)
 
 const id = (x, y): VNode => y
