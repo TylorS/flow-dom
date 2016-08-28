@@ -38,9 +38,14 @@ export function remove (vNode: VNode, rm: Function) {
 
 export function destroy (vNode: VNode) {}
 
+export function insert (vNode: VNode) {
+  return vNode
+}
+
 export const module = {
   update,
   create,
+  insert,
   remove,
   destroy
 }
