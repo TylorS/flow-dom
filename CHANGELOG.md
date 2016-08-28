@@ -1,3 +1,12 @@
+# v0.1.1 (2016-08-28)
+---
+
+
+## Bug Fixes
+
+- fix(flow-dom): add main field to package [01a46f26](https://github.com/TylorS/stream-flow/commits/01a46f26e93db12c476b0cb9308bf3f3d28c924b)
+
+
 # v0.1.0 (2016-08-28)
 ---
 
