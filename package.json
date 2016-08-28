@@ -22,7 +22,9 @@
   },
   "scripts": {
     "lint": "northbrook eslint",
+    "build": "buba -i src -o lib",
     "commit": "northbrook commit",
+    "preversion": "npm run build",
     "release": "northbrook release"
   },
   "devDependencies": {
