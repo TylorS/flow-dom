@@ -40,8 +40,5 @@
     "eslint-plugin-import": "^1.14.0",
     "flow-bin": "^0.31.1",
     "northbrook": "^2.2.6"
-  },
-  "dependencies": {
-    "@most/prelude": "^1.4.0"
   }
 }

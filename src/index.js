@@ -1,9 +1,7 @@
 /* @flow */
 import type { Module } from './interfaces'
-import { reduce, map, replace } from '@most/prelude'
-
 import { VNode } from './hyperscript/VNode'
-import { isUndef, emptyVNodeAt, sameVNode, forEach } from './util'
+import { isUndef, emptyVNodeAt, sameVNode, forEach, reduce, map, replace } from './util'
 
 const emptyVNode = new VNode('', '', [], {}, [], '', null, null)
 

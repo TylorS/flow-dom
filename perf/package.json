@@ -12,7 +12,6 @@
   "author": "Tylor Steinberger <tlsteinberger167@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "@most/prelude": "^1.4.0",
     "vdom-benchmark-base": "^0.2.4"
   },
   "devDependencies": {
