@@ -1,3 +1,12 @@
+# v0.1.2 (2016-08-28)
+---
+
+
+## Bug Fixes
+
+- fix(flow-dom): remove @most/prelude [7ffad2be](https://github.com/TylorS/stream-flow/commits/7ffad2beeff648ca03e7e1e8e331cf8b90546841)
+
+
 # v0.1.1 (2016-08-28)
 ---
 
