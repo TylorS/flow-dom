@@ -1,6 +1,7 @@
 /* @flow */
+import type { VNode } from './VNode'
 import { map, reduce } from '../util'
-import { VNode } from './VNode'
+import { FlowVNode } from './VNode' // eslint-disable-line
 
 const assign = (x: Object, y: Object): Object => Object.assign({}, x, y)
 
@@ -19,7 +20,7 @@ function addNS (children: any[]): VNode[] {
 function convertText (children: any[]): VNode[] {
   return map(function (child: VNode | string): VNode {
     return typeof child === 'string'
-      ? new VNode('', '', [], {}, [], child, null, null)
+      ? new FlowVNode('', '', [], {}, [], child, null, null)
       : (child: VNode)
   }, children)
 }
@@ -35,7 +36,7 @@ export function h (selector: string, data: Object, childrenOrText: string | Arra
     ? childrenOrText
     : []
 
-  return new VNode(tagName, id, classList, data,
+  return new FlowVNode(tagName, id, classList, data,
     tagName === 'svg' ? addNS(children) : convertText(children),
     text, null, data && data.key || null)
 }
@@ -68,7 +69,7 @@ function parseSelector (selector: string): selectorOuput {
     if (!output.tagName) {
       output.tagName = part.trim()
     } else if (type === '.') {
-      output.classList.push(part.trim())
+      output.classList.push(part.substring(1, part.length).trim())
     } else if (type === '#') {
       output.id = part.substring(1, part.length).trim()
     }

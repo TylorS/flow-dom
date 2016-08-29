@@ -1,12 +1,13 @@
 /* @flow */
-import { VNode } from './hyperscript/VNode'
+import type { VNode } from './hyperscript/VNode'
+import { FlowVNode } from './hyperscript/VNode' // eslint-disable-line
 
 export function isUndef (x: any): boolean {
   return x === void 0
 }
 
-export function emptyVNodeAt (node: HTMLElement): VNode {
-  return new VNode(node.tagName.toLowerCase(), node.id || '', copy(node.classList), {}, [], node, null)
+export function emptyVNodeAt (node: Element): VNode {
+  return new FlowVNode(node.tagName.toLowerCase(), node.id || '', copy(node.classList), {}, [], '', node, null)
 }
 
 export function sameVNode (a: VNode, b: VNode): boolean {
@@ -37,7 +38,7 @@ export function map (f: Function, a: any): any[] {
   const l = a.length
   const b = new Array(l)
   for (let i = 0; i < l; ++i) { // eslint-disable-line immutable/no-let
-    b[i] = f(a[i])
+    b[i] = f(a[i], i)
   }
   return b
 }

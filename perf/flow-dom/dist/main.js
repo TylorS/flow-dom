@@ -375,52 +375,18 @@ module.exports = init;
 
 var benchmark = interopDefault(index);
 
-// copy :: [a] -> [a]
-// duplicate a (shallow duplication)
-function copy(a) {
-  var l = a.length;
-  var b = new Array(l);
-  for (var i = 0; i < l; ++i) {
-    b[i] = a[i];
-  }
-  return b;
-}
-
-// map :: (a -> b) -> [a] -> [b]
-// transform each element with f
-function map(f, a) {
-  var l = a.length;
-  var b = new Array(l);
-  for (var i = 0; i < l; ++i) {
-    b[i] = f(a[i]);
-  }
-  return b;
-}
-
-// reduce :: (a -> b -> a) -> a -> [b] -> a
-// accumulate via left-fold
-function reduce(f, z, a) {
-  var r = z;
-  for (var i = 0, l = a.length; i < l; ++i) {
-    r = f(r, a[i], i);
-  }
-  return r;
-}
-
-var VNode = function VNode () {};
-
-var prototypeAccessors = { tagName: {},id: {},classList: {},selector: {},data: {},children: {},text: {},element: {},key: {} };
-
-VNode.prototype.conctructor = function conctructor (tagName, id, classList, data, children, text, element, key) {
+var FlowVNode = function FlowVNode(tagName, id, classList, data, children, text, element, key) {
   this._tagName = tagName;
   this._id = id;
   this._classList = classList;
   this._data = data;
   this._children = children;
   this._text = text;
-  this._element = element || null;
-  this._key = key || null;
+  this._element = element;
+  this._key = key;
 };
+
+var prototypeAccessors = { tagName: {},id: {},classList: {},selector: {},data: {},children: {},text: {},element: {},key: {} };
 
 prototypeAccessors.tagName.get = function () {
   return this._tagName;
@@ -435,7 +401,7 @@ prototypeAccessors.classList.get = function () {
 };
 
 prototypeAccessors.selector.get = function () {
-  return "" + (this._tagName) + (this._id && ("#" + (this._id)) || '') + "" + (this._classList && this._classList.length > 0 ? '.' + this._classList.sort().join('.') : '');
+  return "" + (this._tagName) + (this._id && ("#" + (this._id)) || '') + "" + (this._classList && this._classList.length > 0 ? '.' + this._classList.sort().join('') : '');
 };
 
 prototypeAccessors.data.get = function () {
@@ -458,46 +424,48 @@ prototypeAccessors.key.get = function () {
   return this._key;
 };
 
-VNode.prototype.setTagName = function setTagName (tagName) {
-  return new VNode(tagName, this.id, this.classList, this.data, this.children, this.text, this.element, this.key);
+FlowVNode.prototype.setTagName = function setTagName (tagName) {
+  return new FlowVNode(tagName, this._id, this._classList, this._data, this._children, this._text, this._element, this._key);
 };
 
-VNode.prototype.setId = function setId (id) {
-  return new VNode(this.tagName, id, this.classList, this.data, this.children, this.text, this.element, this.key);
+FlowVNode.prototype.setId = function setId (id) {
+  return new FlowVNode(this._tagName, id, this._classList, this._data, this._children, this._text, this._element, this._key);
 };
 
-VNode.prototype.setClassList = function setClassList (classList) {
-  return new VNode(this.tagName, this.id, classList, this.data, this.children, this.text, this.element, this.key);
+FlowVNode.prototype.setClassList = function setClassList (classList) {
+  return new FlowVNode(this._tagName, this._id, classList, this._data, this._children, this._text, this._element, this._key);
 };
 
-VNode.prototype.setData = function setData (data) {
-  return new VNode(this.tagName, this.id, this.classList, data, this.children, this.text, this.element, this.key);
+FlowVNode.prototype.setData = function setData (data) {
+  return new FlowVNode(this._tagName, this._id, this._classList, data, this._children, this._text, this._element, this._key);
 };
 
-VNode.prototype.setChildren = function setChildren (children) {
-  return new VNode(this.tagName, this.id, this.classList, this.data, children, this.text, this.element, this.key);
+FlowVNode.prototype.setChildren = function setChildren (children) {
+  return new FlowVNode(this._tagName, this._id, this._classList, this._data, children, this._text, this._element, this._key);
 };
 
-VNode.prototype.setText = function setText (text) {
-  return new VNode(this.tagName, this.id, this.classList, this.data, this.children, text, this.element, this.key);
+FlowVNode.prototype.setText = function setText (text) {
+  return new FlowVNode(this._tagName, this._id, this._classList, this._data, this._children, text, this._element, this._key);
 };
 
-VNode.prototype.setElement = function setElement (element) {
-  return new VNode(this.tagName, this.id, this.classList, this.data, this.children, this.text, element, this.key);
+FlowVNode.prototype.setElement = function setElement (element) {
+  return new FlowVNode(this._tagName, this._id, this._classList, this._data, this._children, this._text, element, this._key);
 };
 
-VNode.prototype.setKey = function setKey (key) {
-  return new VNode(this.tagName, this.id, this.classList, this.data, this.children, this.text, this.element, key);
+FlowVNode.prototype.setKey = function setKey (key) {
+  return new FlowVNode(this._tagName, this._id, this._classList, this._data, this._children, this._text, this._element, key);
 };
 
-Object.defineProperties( VNode.prototype, prototypeAccessors );
+Object.defineProperties( FlowVNode.prototype, prototypeAccessors );
+
+// eslint-disable-line
 
 function isUndef(x) {
   return x === void 0;
 }
 
 function emptyVNodeAt(node) {
-  return new VNode(node.tagName.toLowerCase(), node.id || '', copy(node.classList), {}, [], node, null);
+  return new FlowVNode(node.tagName.toLowerCase(), node.id || '', copy(node.classList), {}, [], '', node, null);
 }
 
 function sameVNode(a, b) {
@@ -512,20 +480,140 @@ function forEach(f, arr) {
   }
 }
 
+// copy :: [a] -> [a]
+// duplicate a (shallow duplication)
+function copy(a) {
+  var l = a.length;
+  var b = new Array(l);
+  for (var i = 0; i < l; ++i) {
+    // eslint-disable-line immutable/no-let
+    b[i] = a[i];
+  }
+  return b;
+}
+
+// map :: (a -> b) -> [a] -> [b]
+// transform each element with f
+function map$1(f, a) {
+  var l = a.length;
+  var b = new Array(l);
+  for (var i = 0; i < l; ++i) {
+    // eslint-disable-line immutable/no-let
+    b[i] = f(a[i], i);
+  }
+  return b;
+}
+
+// reduce :: (a -> b -> a) -> a -> [b] -> a
+// accumulate via left-fold
+function reduce(f, z, a) {
+  var r = z; // eslint-disable-line immutable/no-let
+  for (var i = 0, l = a.length; i < l; ++i) {
+    // eslint-disable-line immutable/no-let
+    r = f(r, a[i], i);
+  }
+  return r;
+}
+
+// replace :: a -> Int -> [a]
+// replace element at index
+function replace(x, i, a) {
+  if (i < 0) {
+    throw new TypeError('i must be >= 0');
+  }
+
+  var l = a.length;
+  var b = new Array(l);
+  for (var j = 0; j < l; ++j) {
+    // eslint-disable-line immutable/no-let
+    b[j] = i === j ? x : a[j];
+  }
+  return b;
+}
+
+// eslint-disable-line
+
+var assign = function (x, y) { return Object.assign({}, x, y); };
+
+function setSVGNamespace(vNode) {
+  var newVNode = vNode.setData(assign(vNode.data, { ns: 'http://www.w3.org/2000/svg' }));
+  if (newVNode.children.length > 0 && newVNode.tagName !== 'foreignObject') {
+    return newVNode.setChildren(addNS(newVNode.children));
+  }
+  return newVNode;
+}
+
+function addNS(children) {
+  return map$1(setSVGNamespace, children);
+}
+
+function convertText(children) {
+  return map$1(function (child) {
+    return typeof child === 'string' ? new FlowVNode('', '', [], {}, [], child, null, null) : child;
+  }, children);
+}
+
+function h(selector, data, childrenOrText) {
+  var ref = parseSelector(selector);
+  var tagName = ref.tagName;
+  var id = ref.id;
+  var classList = ref.classList;
+
+  var text = typeof childrenOrText === 'string' ? childrenOrText : '';
+
+  var children = Array.isArray(childrenOrText) ? childrenOrText : [];
+
+  return new FlowVNode(tagName, id, classList, data, tagName === 'svg' ? addNS(children) : convertText(children), text, null, data && data.key || null);
+}
+
+var classIdSplit = /([\.#]?[a-zA-Z0-9\u007F-\uFFFF_:-]+)/;
+var notClassId = /^\.|#/;
+
+function parseSelector(selector) {
+  var tagParts = selector.split(classIdSplit);
+
+  if (selector === '') {
+    return {
+      tagName: 'div',
+      id: '',
+      classList: []
+    };
+  }
+
+  var seed = notClassId.test(tagParts[1]) ? { tagName: 'div', id: '', classList: [] } : { tagName: '', id: '', classList: [] };
+
+  return reduce(function (output, part) {
+    if (!part) return output;
+
+    var type = part.charAt(0);
+
+    if (!output.tagName) {
+      output.tagName = part.trim();
+    } else if (type === '.') {
+      output.classList.push(part.substring(1, part.length).trim());
+    } else if (type === '#') {
+      output.id = part.substring(1, part.length).trim();
+    }
+
+    return output;
+  }, seed, tagParts);
+}
+
 var _extends = Object.assign || function (target) {
 var arguments$1 = arguments;
  for (var i = 1; i < arguments.length; i++) { var source = arguments$1[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
-var emptyVNode = new VNode('', '', [], {}, [], '', null, null);
+// eslint-disable-line
+var emptyVNode = new FlowVNode('', '', [], {}, [], '', null, null);
 
 var id = function (x, y) { return y; };
 
 function setTextContent(node, text) {
-  node.setTextContent(text);
+  node.textContent = text;
 }
 
 function insertBefore(parent, node, before) {
-  parent.insertVNode(node, before);
+  parent.insertBefore(node, before);
 }
 
 function removeChild(parent, child) {
@@ -536,8 +624,8 @@ function nextSibling(element) {
   return element.nextSibling;
 }
 
-var appendChild = function (parent) { return function (node) {
-  parent.appendChild(node);
+var appendChild = function (parent) { return function (vNode) {
+  parent.appendChild(vNode.element);
 }; };
 
 function createKeyToIndex(children, beginIdx, endIdx) {
@@ -547,6 +635,19 @@ function createKeyToIndex(children, beginIdx, endIdx) {
     }
     return map;
   }, {}, children);
+}
+
+function callInsert(vNode) {
+  var data = vNode.data;
+  var children = vNode.children;
+
+  var insertedChildren = children.length > 0 ? map$1(callInsert, children) : children;
+
+  if (data.insert) {
+    return data.insert(vNode);
+  }
+
+  return vNode.setChildren(insertedChildren);
 }
 
 function init(modules) {
@@ -563,9 +664,9 @@ function init(modules) {
     var updatedOldVNode = ref[0];
     var updatedVNode = ref[1];
 
-    var insert = !isUndef(updatedVNode.data) && updatedVNode.data.insert || id;
+    var update = !isUndef(updatedVNode.data) && updatedVNode.data.update || id;
 
-    return insert(updatedOldVNode, updatedVNode);
+    return update(updatedOldVNode, updatedVNode);
   }
 
   // calls all create hooks
@@ -623,7 +724,7 @@ function init(modules) {
     if (id) element.id = id;
     if (classList.length > 0) element.className = classList.join(' ');
 
-    var children = map(createElement, VNodeChildren);
+    var children = map$1(createElement, VNodeChildren);
 
     if (children.length > 0) {
       forEach(appendChild(element), children);
@@ -631,7 +732,9 @@ function init(modules) {
       setTextContent(element, text);
     }
 
-    return callCreateHooks(vNode.setElement(element).setChildren(children));
+    var updatedVNode = vNode.setChildren(children).setElement(element);
+
+    return callCreateHooks(updatedVNode);
   }
 
   function createRemoveCallback(childElement, listeners) {
@@ -660,14 +763,20 @@ function init(modules) {
     }
   }
 
-  function addVNodes(parent, vNode, before) {
+  function addVNodes(parent, vNode, before, startIndex, endIndex) {
     var children = vNode.children;
 
-    var childrenWithElements = map(createElement, children);
+    if (startIndex >= children.length) {
+      return vNode;
+    }
 
-    forEach(function (child) {
-      insertBefore(parent, child.element, before);
-    }, childrenWithElements);
+    var childrenWithElements = map$1(function (child, index) {
+      if (index >= startIndex && index <= endIndex) {
+        insertBefore(parent, child.element, before);
+        return callInsert(child);
+      }
+      return child;
+    }, map$1(createElement, children));
 
     return vNode.setChildren(childrenWithElements);
   }
@@ -692,7 +801,8 @@ function init(modules) {
 
     if (oldStartIndex > oldEndIndex) {
       var before = isUndef(children[newEndIndex + 1]) ? null : children[newEndIndex + 1].element;
-      return addVNodes(parent, vNode, before);
+
+      return addVNodes(parent, vNode, before, newStartIndex, newEndIndex);
     }
 
     if (newStartIndex > newEndIndex) {
@@ -701,7 +811,6 @@ function init(modules) {
     }
 
     // VNode has moved left in child array
-
     if (isUndef(oldStartVNode)) {
       var _oldStartIndex = oldStartIndex + 1;
       return updateChildren(_extends({}, previousInput, {
@@ -720,29 +829,29 @@ function init(modules) {
 
     if (sameVNode(oldStartVNode, newStartVNode)) {
       var _updatedVNode = patchVNode(oldStartVNode, newStartVNode);
-      children[newStartIndex] = _updatedVNode; // mutation
+      var newChildren$1 = replace(_updatedVNode, newStartIndex, children);
 
       var _oldStartIndex$1 = oldStartIndex + 1;
-      var _newStartIndex = newStartIndex + 1;
+      var _newStartIndex$1 = newStartIndex + 1;
 
       return updateChildren(_extends({}, previousInput, {
-        vNode: vNode.setChildren(children),
+        vNode: vNode.setChildren(newChildren$1),
         oldStartIndex: _oldStartIndex$1,
-        newStartIndex: _newStartIndex,
+        newStartIndex: _newStartIndex$1,
         oldStartVNode: oldChildren[_oldStartIndex$1],
-        newStartVNode: children[_newStartIndex]
+        newStartVNode: children[_newStartIndex$1]
       }));
     }
 
     if (sameVNode(oldEndVNode, newEndVNode)) {
-      var updatedVNode = patchVNode(oldEndVNode, newEndVNode);
-      children[newEndIndex] = updatedVNode; // mutation
+      var updatedVNode$1 = patchVNode(oldEndVNode, newEndVNode);
+      var newChildren$2 = replace(updatedVNode$1, newEndIndex, children);
 
       var _oldEndIndex$1 = oldEndIndex - 1;
       var _newEndIndex = newEndIndex - 1;
 
       return updateChildren(_extends({}, previousInput, {
-        vNode: vNode.setChildren(children),
+        vNode: vNode.setChildren(newChildren$2),
         oldEndIndex: _oldEndIndex$1,
         newEndIndex: _newEndIndex,
         oldEndVNode: oldChildren[_oldEndIndex$1],
@@ -752,8 +861,8 @@ function init(modules) {
 
     // vNode has moved right in the array
     if (sameVNode(oldStartVNode, newEndVNode)) {
-      var updatedVNode$1 = patchVNode(oldStartVNode, newEndVNode);
-      children[newEndIndex] = updatedVNode$1; // mutation
+      var updatedVNode$2 = patchVNode(oldStartVNode, newEndVNode);
+      var newChildren$3 = replace(updatedVNode$2, newEndIndex, children);
 
       insertBefore(parent, oldStartVNode.element, nextSibling(oldEndVNode.element));
 
@@ -761,7 +870,7 @@ function init(modules) {
       var _newEndIndex$1 = newEndIndex - 1;
 
       return updateChildren(_extends({}, previousInput, {
-        vNode: vNode.setChildren(children),
+        vNode: vNode.setChildren(newChildren$3),
         oldStartIndex: _oldStartIndex$2,
         newEndIndex: _newEndIndex$1,
         oldStartVNode: oldChildren[_oldStartIndex$2],
@@ -771,57 +880,64 @@ function init(modules) {
 
     // vNode moved left
     if (sameVNode(oldEndVNode, newStartVNode)) {
-      var updatedVNode$2 = patchVNode(oldEndVNode, newStartVNode);
-      children[newStartIndex] = updatedVNode$2; // mutation
+      var updatedVNode$3 = patchVNode(oldEndVNode, newStartVNode);
+      var newChildren$4 = replace(updatedVNode$3, newStartIndex, children);
 
       insertBefore(parent, oldEndVNode.element, oldStartVNode.element);
 
       var _oldEndIndex$2 = oldEndIndex - 1;
-      var _newStartIndex$1 = newStartIndex + 1;
+      var _newStartIndex$2 = newStartIndex + 1;
 
       return updateChildren(_extends({}, previousInput, {
-        vNode: vNode.setChildren(children),
+        vNode: vNode.setChildren(newChildren$4),
         oldEndIndex: _oldEndIndex$2,
-        newStartIndex: _newStartIndex$1,
+        newStartIndex: _newStartIndex$2,
         oldEndVNode: oldChildren[_oldEndIndex$2],
-        newStartVNode: children[_newStartIndex$1]
+        newStartVNode: children[_newStartIndex$2]
       }));
     }
 
-    var indexInOld = oldKeyToIndex[newStartVNode.key];
+    var _oldKeyToIndex = oldKeyToIndex === null ? createKeyToIndex(oldChildren, oldStartIndex, oldEndIndex) : oldKeyToIndex;
+
+    var indexInOld = _oldKeyToIndex[newStartVNode.key];
+
     if (isUndef(indexInOld)) {
       // new element
-      var _vNode = createElement(newStartVNode);
-      insertBefore(parent, vNode.element, oldStartVNode);
+      var _vNode$1 = createElement(newStartVNode);
+      insertBefore(parent, _vNode$1.element, oldStartVNode.element);
 
-      var _newStartIndex$2 = newStartIndex + 1;
-      var _newStartVNode = children[_newStartIndex$2];
-
-      return updateChildren(_extends({}, previousInput, {
-        vNode: _vNode,
-        newStartIndex: _newStartIndex$2,
-        newStartVNode: _newStartVNode
-      }));
-    } else {
-      var elementToMove = oldChildren[indexInOld];
-      var updatedVNode$3 = patchVNode(elementToMove, newStartVNode);
-      children[newStartIndex] = updatedVNode$3;
-      var _vNode$1 = vNode.setChildren(children);
-      // $flow-ignore-line
-      oldChildren[indexInOld] = undefined;
-      insertBefore(parent, elementToMove.element, oldStartVNode.element);
       var _newStartIndex$3 = newStartIndex + 1;
       var _newStartVNode$1 = children[_newStartIndex$3];
+
       return updateChildren(_extends({}, previousInput, {
-        vNode: _vNode$1,
+        oldKeyToIndex: _oldKeyToIndex,
+        vNode: callInsert(_vNode$1),
         newStartIndex: _newStartIndex$3,
         newStartVNode: _newStartVNode$1
       }));
     }
+
+    var elementToMove = oldChildren[indexInOld];
+    var updatedVNode = patchVNode(elementToMove, newStartVNode);
+    var newChildren = replace(updatedVNode, newStartIndex, children);
+    var _vNode = vNode.setChildren(newChildren);
+    // $flow-ignore-line
+    oldChildren[indexInOld] = undefined;
+    insertBefore(parent, elementToMove.element, oldStartVNode.element);
+    var _newStartIndex = newStartIndex + 1;
+    var _newStartVNode = children[_newStartIndex];
+    return updateChildren(_extends({}, previousInput, {
+      oldKeyToIndex: _oldKeyToIndex,
+      vNode: _vNode,
+      newStartIndex: _newStartIndex,
+      newStartVNode: _newStartVNode
+    }));
   }
 
   // updates the DOM and VNode with the current information it should have
-  function patchVNode(oldVNode, vNode) {
+  function patchVNode(oldVNode, _vNode) {
+    // $flow-ignore-line
+    var vNode = _vNode.setElement(oldVNode.element);
     // if the previous and current are equal do nothing
     if (oldVNode === vNode) return vNode;
 
@@ -830,10 +946,11 @@ function init(modules) {
       var parent = oldVNode.element && oldVNode.element.parentNode;
       var newVNode = createElement(vNode);
       insertBefore(parent, newVNode.element, oldVNode.element);
+      var updatedVNode$1 = callInsert(newVNode);
       if (parent !== null && parent !== undefined) {
         removeVNodes(parent, [oldVNode], 0, 0);
       }
-      return newVNode;
+      return updatedVNode$1;
     }
 
     var updatedVNode = callUpdateHooks(oldVNode, vNode);
@@ -856,10 +973,10 @@ function init(modules) {
         var newEndVNode = children[newEndIndex];
 
         var input = {
-          parent: element,
+          parent: oldVNode.element,
           oldChildren: oldVNode.children,
           vNode: updatedVNode,
-          oldKeyToIndex: createKeyToIndex(oldVNode.children, 0, oldEndIndex),
+          oldKeyToIndex: null,
           oldStartIndex: 0,
           oldEndIndex: oldEndIndex,
           newStartIndex: 0,
@@ -874,7 +991,7 @@ function init(modules) {
       } else if (children.length > 0) {
         // children have been added when there were none
         if (oldVNode.text !== '') setTextContent(element, '');
-        return addVNodes(element, updatedVNode, null);
+        return addVNodes(element, updatedVNode, null, 0, updatedVNode.children.length - 1);
       } else if (oldVNode.children.length > 0) {
         // children have been completely removed
         if (updatedVNode.element) {
@@ -910,76 +1027,11 @@ function init(modules) {
 
     if (parent) {
       insertBefore(parent, newVNode.element, element && element.nextSibling);
+      return callInsert(newVNode);
     }
 
     return newVNode;
   };
-}
-
-var assign = function (x, y) { return Object.assign({}, x, y); };
-
-function setSVGNamespace(vNode) {
-  var newVNode = vNode.setData(assign(vNode.data, { ns: 'http://www.w3.org/2000/svg' }));
-  if (newVNode.children.length > 0 && newVNode.tagName !== 'foreignObject') {
-    return newVNode.setChildren(addNS(newVNode.children));
-  }
-  return newVNode;
-}
-
-function addNS(children) {
-  return map(setSVGNamespace, children);
-}
-
-function convertText(children) {
-  return map(function (child) {
-    return typeof child === 'string' ? new VNode('', '', [], {}, [], child, null, null) : child;
-  }, children);
-}
-
-function h(selector, data, childrenOrText) {
-  var ref = parseSelector(selector);
-  var tagName = ref.tagName;
-  var id = ref.id;
-  var classList = ref.classList;
-
-  var text = typeof childrenOrText === 'string' ? childrenOrText : '';
-
-  var children = Array.isArray(childrenOrText) ? childrenOrText : [];
-
-  return new VNode(tagName, id, classList, data, tagName === 'svg' ? addNS(children) : convertText(children), text, null, data && data.key || null);
-}
-
-var classIdSplit = /([\.#]?[a-zA-Z0-9\u007F-\uFFFF_:-]+)/;
-var notClassId = /^\.|#/;
-
-function parseSelector(selector) {
-  var tagParts = selector.split(classIdSplit);
-
-  if (selector === '') {
-    return {
-      tagName: 'div',
-      id: '',
-      classList: []
-    };
-  }
-
-  var seed = notClassId.test(tagParts[1]) ? { tagName: 'div', id: '', classList: [] } : { tagName: '', id: '', classList: [] };
-
-  return reduce(function (output, part) {
-    if (!part) return output;
-
-    var type = part.charAt(0);
-
-    if (!output.tagName) {
-      output.tagName = part.trim();
-    } else if (type === '.') {
-      output.classList.push(part.trim());
-    } else if (type === '#') {
-      output.id = part.substring(1, part.length).trim();
-    }
-
-    return output;
-  }, seed, tagParts);
 }
 
 var patch = init([]);
@@ -987,8 +1039,18 @@ var patch = init([]);
 var NAME = 'flow-dom';
 var VERSION = '1.0.0';
 
+function map(arr, f) {
+  var l = arr.length;
+  var x = new Array(l);
+  for (var i = 0; i < l; ++i) {
+    // eslint-disable-line immutable/no-let
+    x[i] = f(arr[i]);
+  }
+  return x;
+}
+
 function convertToVnodes(nodes) {
-  return nodes.map(function (n) {
+  return map(nodes, function (n) {
     if (n.children !== null) {
       return h('div', { key: n.key }, convertToVnodes(n.children));
     }

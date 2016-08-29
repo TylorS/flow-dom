@@ -1,13 +1,22 @@
 import benchmark from 'vdom-benchmark-base'
-import { init } from '../../src/index'
-import { h } from '../../src/hyperscript/h'
+import { init } from '../../../src/index'
+import { h } from '../../../src/hyperscript/h'
 const patch = init([])
 
 var NAME = 'flow-dom'
 var VERSION = '1.0.0'
 
+function map (arr, f) {
+  const l = arr.length
+  const x = new Array(l)
+  for (let i = 0; i < l; ++i) { // eslint-disable-line immutable/no-let
+    x[i] = f(arr[i])
+  }
+  return x
+}
+
 function convertToVnodes (nodes) {
-  return nodes.map(function (n) {
+  return map(nodes, function (n) {
     if (n.children !== null) {
       return h('div', {key: n.key}, convertToVnodes(n.children))
     }

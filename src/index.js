@@ -1,20 +1,21 @@
 /* @flow */
 import type { Module } from './interfaces'
-import { VNode } from './hyperscript/VNode'
+import type { VNode } from './hyperscript/VNode'
+import { FlowVNode } from './hyperscript/VNode' // eslint-disable-line
 import { isUndef, emptyVNodeAt, sameVNode, forEach, reduce, map, replace } from './util'
 
 export { h } from './hyperscript/h'
 
-const emptyVNode = new VNode('', '', [], {}, [], '', null, null)
+const emptyVNode = new FlowVNode('', '', [], {}, [], '', null, null)
 
 const id = (x, y): VNode => y
 
 function setTextContent (node: any, text: any) {
-  node.setTextContent(text)
+  node.textContent = text
 }
 
 function insertBefore (parent: any, node: any, before: any) {
-  parent.insertVNode(node, before)
+  parent.insertBefore(node, before)
 }
 
 function removeChild (parent: any, child: any) {
@@ -25,7 +26,9 @@ function nextSibling (element: any): Element {
   return element.nextSibling
 }
 
-const appendChild = (parent: any): Function => (node: any) => { parent.appendChild(node) }
+const appendChild = (parent: any): Function => (vNode: any) => {
+  parent.appendChild(vNode.element)
+}
 
 function createKeyToIndex (children: VNode[], beginIdx: number, endIdx: number): Object {
   return reduce(function (map: Object, child: VNode, i: number): Object {
@@ -121,7 +124,9 @@ export function init (modules: Module[] = []): (oldVNode: VNode | HTMLElement, v
       setTextContent(element, text)
     }
 
-    return callCreateHooks(vNode.setElement(element).setChildren(children))
+    const updatedVNode = vNode.setChildren(children).setElement(element)
+
+    return callCreateHooks(updatedVNode)
   }
 
   function createRemoveCallback (childElement: any, listeners: number): Function {
@@ -149,12 +154,19 @@ export function init (modules: Module[] = []): (oldVNode: VNode | HTMLElement, v
     }
   }
 
-  function addVNodes (parent: any, vNode: VNode, before: any): VNode {
+  function addVNodes (parent: any, vNode: VNode, before: any, startIndex: number, endIndex: number): VNode {
     const { children } = vNode
 
-    const childrenWithElements = map(function (child: VNode): VNode {
-      insertBefore(parent, child.element, before)
-      return callInsert(child)
+    if (startIndex >= children.length) {
+      return vNode
+    }
+
+    const childrenWithElements = map(function (child: VNode, index: number): VNode {
+      if (index >= startIndex && index <= endIndex) {
+        insertBefore(parent, child.element, before)
+        return callInsert(child)
+      }
+      return child
     }, map(createElement, children))
 
     return vNode.setChildren(childrenWithElements)
@@ -165,7 +177,7 @@ export function init (modules: Module[] = []): (oldVNode: VNode | HTMLElement, v
     // $flow-ignore-line
     oldChildren: Array<VNode>,
     vNode: VNode,
-    oldKeyToIndex: Object,
+    oldKeyToIndex: Object | null,
     oldStartIndex: number,
     oldEndIndex: number,
     newStartIndex: number,
@@ -185,7 +197,8 @@ export function init (modules: Module[] = []): (oldVNode: VNode | HTMLElement, v
 
     if (oldStartIndex > oldEndIndex) {
       const before = isUndef(children[newEndIndex + 1]) ? null : children[newEndIndex + 1].element
-      return addVNodes(parent, vNode, before)
+
+      return addVNodes(parent, vNode, before, newStartIndex, newEndIndex)
     }
 
     if (newStartIndex > newEndIndex) {
@@ -194,7 +207,6 @@ export function init (modules: Module[] = []): (oldVNode: VNode | HTMLElement, v
     }
 
     // VNode has moved left in child array
-
     if (isUndef(oldStartVNode)) {
       const _oldStartIndex = oldStartIndex + 1
       return updateChildren({ ...previousInput,
@@ -281,39 +293,49 @@ export function init (modules: Module[] = []): (oldVNode: VNode | HTMLElement, v
       })
     }
 
-    const indexInOld = oldKeyToIndex[newStartVNode.key]
-    if (isUndef(indexInOld)) { // new element
+    const _oldKeyToIndex = oldKeyToIndex === null
+      ? createKeyToIndex(oldChildren, oldStartIndex, oldEndIndex)
+      : oldKeyToIndex
+
+    const indexInOld = _oldKeyToIndex[newStartVNode.key]
+
+    if (isUndef(indexInOld)) {
+      // new element
       const _vNode = createElement(newStartVNode)
-      insertBefore(parent, _vNode.element, oldStartVNode)
+      insertBefore(parent, _vNode.element, oldStartVNode.element)
 
       const _newStartIndex = newStartIndex + 1
       const _newStartVNode = children[_newStartIndex]
 
       return updateChildren({...previousInput,
+        oldKeyToIndex: _oldKeyToIndex,
         vNode: callInsert(_vNode),
         newStartIndex: _newStartIndex,
         newStartVNode: _newStartVNode
       })
-    } else {
-      const elementToMove = oldChildren[indexInOld]
-      const updatedVNode = patchVNode(elementToMove, newStartVNode)
-      const newChildren = replace(updatedVNode, newStartIndex, children)
-      const _vNode = vNode.setChildren(newChildren)
-      // $flow-ignore-line
-      oldChildren[indexInOld] = undefined
-      insertBefore(parent, elementToMove.element, oldStartVNode.element)
-      const _newStartIndex = newStartIndex + 1
-      const _newStartVNode = children[_newStartIndex]
-      return updateChildren({...previousInput,
-        vNode: _vNode,
-        newStartIndex: _newStartIndex,
-        newStartVNode: _newStartVNode
-      })
     }
+
+    const elementToMove = oldChildren[indexInOld]
+    const updatedVNode = patchVNode(elementToMove, newStartVNode)
+    const newChildren = replace(updatedVNode, newStartIndex, children)
+    const _vNode = vNode.setChildren(newChildren)
+    // $flow-ignore-line
+    oldChildren[indexInOld] = undefined
+    insertBefore(parent, elementToMove.element, oldStartVNode.element)
+    const _newStartIndex = newStartIndex + 1
+    const _newStartVNode = children[_newStartIndex]
+    return updateChildren({...previousInput,
+      oldKeyToIndex: _oldKeyToIndex,
+      vNode: _vNode,
+      newStartIndex: _newStartIndex,
+      newStartVNode: _newStartVNode
+    })
   }
 
   // updates the DOM and VNode with the current information it should have
-  function patchVNode (oldVNode: VNode, vNode: VNode): VNode {
+  function patchVNode (oldVNode: VNode, _vNode: VNode): VNode {
+    // $flow-ignore-line
+    const vNode = _vNode.setElement(oldVNode.element)
     // if the previous and current are equal do nothing
     if (oldVNode === vNode) return vNode
 
@@ -347,10 +369,10 @@ export function init (modules: Module[] = []): (oldVNode: VNode | HTMLElement, v
         const newEndVNode = children[newEndIndex]
 
         const input: UpdateChildren = {
-          parent: element,
+          parent: oldVNode.element,
           oldChildren: oldVNode.children,
           vNode: updatedVNode,
-          oldKeyToIndex: createKeyToIndex(oldVNode.children, 0, oldEndIndex),
+          oldKeyToIndex: null,
           oldStartIndex: 0,
           oldEndIndex,
           newStartIndex: 0,
@@ -364,7 +386,7 @@ export function init (modules: Module[] = []): (oldVNode: VNode | HTMLElement, v
         return updateChildren(input)
       } else if (children.length > 0) { // children have been added when there were none
         if (oldVNode.text !== '') setTextContent(element, '')
-        return addVNodes(element, updatedVNode, null)
+        return addVNodes(element, updatedVNode, null, 0, updatedVNode.children.length - 1)
       } else if (oldVNode.children.length > 0) { // children have been completely removed
         if (updatedVNode.element) {
           removeVNodes(updatedVNode.element, oldVNode.children, 0, oldVNode.children.length - 1)
