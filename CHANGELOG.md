@@ -1,3 +1,12 @@
+# v0.1.3 (2016-08-29)
+---
+
+
+## Bug Fixes
+
+- fix(flow-dom): fix all the things and make some perf test and an exampley [65206e9c](https://github.com/TylorS/stream-flow/commits/65206e9c03f51849adeb0f9bf1537b3a28ab4c90)
+
+
 # v0.1.2 (2016-08-28)
 ---
 
